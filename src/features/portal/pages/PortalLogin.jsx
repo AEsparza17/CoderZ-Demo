@@ -3,8 +3,7 @@ import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageCircle, Mail, X } from 'lucide-react';
-
-const API_URL = 'https://backend.coder-z.com/portal/api/auth/login';
+import { authApi } from '@/services/api';
 
 const PortalLogin = () => {
   const navigate = useNavigate();
@@ -19,22 +18,13 @@ const PortalLogin = () => {
     setError('');
     setLoading(true);
     try {
-      const res = await fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.error || 'Error al iniciar sesión');
-        return;
-      }
+      const data = await authApi.login(email, password);
       localStorage.setItem('coderz_token', data.token);
       localStorage.setItem('coderz_nombre', data.nombre);
       localStorage.setItem('coderz_herramientas', JSON.stringify(data.herramientas || []));
       navigate('/portal/dashboard');
-    } catch {
-      setError('No se pudo conectar con el servidor');
+    } catch (err) {
+      setError(err.message || 'Error al iniciar sesión');
     } finally {
       setLoading(false);
     }
@@ -60,6 +50,14 @@ const PortalLogin = () => {
             </h1>
             <p className="text-blue-200 mt-2 text-sm">
               Acceso exclusivo para clientes
+            </p>
+          </div>
+
+          {/* Banner demo */}
+          <div className="mb-6 px-4 py-3 rounded-xl bg-blue-500/10 border border-blue-400/30 text-center">
+            <p className="text-xs text-blue-300 font-medium mb-1">Acceso de demostración</p>
+            <p className="text-xs text-blue-200/70">
+              <span className="font-mono">demo@demo.com</span> / <span className="font-mono">demo1234</span>
             </p>
           </div>
 

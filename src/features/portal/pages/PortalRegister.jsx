@@ -1,31 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { authApi } from '@/services/api';
 
 const PortalRegister = () => {
   const navigate = useNavigate();
-  const [nombre, setNombre] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
-
-  const handleRegister = async (e) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
-    try {
-      await authApi.register(nombre, email, password);
-      setSuccess(true);
-    } catch (err) {
-      setError(err.message || 'Error al registrarse');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <div className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-black via-slate-900 to-blue-950 text-white">
@@ -37,93 +16,31 @@ const PortalRegister = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="w-full bg-white/10 backdrop-blur-lg border border-white/20 p-8 rounded-2xl shadow-2xl"
+          className="w-full bg-white/10 backdrop-blur-lg border border-white/20 p-8 rounded-2xl shadow-2xl text-center space-y-5"
         >
-          {success ? (
-            <div className="text-center space-y-4">
-              <div className="text-5xl">✓</div>
-              <h2 className="text-2xl font-bold text-white">Registro exitoso</h2>
-              <p className="text-blue-200 text-sm">
-                Tu cuenta fue creada. Te avisaremos cuando tu acceso a las herramientas esté habilitado.
-              </p>
-              <Button
-                onClick={() => navigate('/portal')}
-                className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-bold py-2 rounded-lg shadow-lg shadow-blue-500/20 border-none mt-2"
-              >
-                Volver al login
-              </Button>
-            </div>
-          ) : (
-            <>
-              <div className="text-center mb-8">
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">
-                  Crear cuenta
-                </h1>
-                <p className="text-blue-200 mt-2 text-sm">
-                  Completá tus datos para registrarte
-                </p>
-              </div>
+          <div className="text-4xl">🚧</div>
 
-              <form onSubmit={handleRegister} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-blue-100 mb-1">Nombre</label>
-                  <input
-                    type="text"
-                    value={nombre}
-                    onChange={(e) => setNombre(e.target.value)}
-                    placeholder="Tu nombre"
-                    required
-                    className="w-full bg-black/20 border border-blue-500/30 rounded-lg px-4 py-2 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-                  />
-                </div>
+          <h1 className="text-2xl font-bold text-white">
+            Registro no disponible en el demo
+          </h1>
 
-                <div>
-                  <label className="block text-sm font-medium text-blue-100 mb-1">Email</label>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="tu@email.com"
-                    required
-                    className="w-full bg-black/20 border border-blue-500/30 rounded-lg px-4 py-2 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-                  />
-                </div>
+          <p className="text-blue-200 text-sm leading-relaxed">
+            En la aplicación real, los clientes pueden registrarse y solicitar acceso a sus herramientas.
+            <br /><br />
+            Para explorar el demo, usá las credenciales de prueba:
+          </p>
 
-                <div>
-                  <label className="block text-sm font-medium text-blue-100 mb-1">Contraseña</label>
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    required
-                    className="w-full bg-black/20 border border-blue-500/30 rounded-lg px-4 py-2 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-                  />
-                </div>
+          <div className="px-4 py-3 rounded-xl bg-blue-500/10 border border-blue-400/30">
+            <p className="text-sm font-mono text-blue-200">demo@demo.com</p>
+            <p className="text-sm font-mono text-blue-200">demo1234</p>
+          </div>
 
-                {error && (
-                  <p className="text-red-400 text-sm text-center">{error}</p>
-                )}
-
-                <Button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-bold py-2 rounded-lg shadow-lg shadow-blue-500/20 mt-4 border-none"
-                >
-                  {loading ? 'Registrando...' : 'Registrarse'}
-                </Button>
-              </form>
-
-              <div className="mt-6 text-center">
-                <button
-                  onClick={() => navigate('/portal')}
-                  className="text-sm text-blue-300 hover:text-blue-100 transition-colors cursor-pointer"
-                >
-                  ¿Ya tenés cuenta? Iniciá sesión
-                </button>
-              </div>
-            </>
-          )}
+          <Button
+            onClick={() => navigate('/portal')}
+            className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-bold py-2 rounded-lg shadow-lg shadow-blue-500/20 border-none"
+          >
+            Ir al login
+          </Button>
         </motion.div>
       </div>
     </div>
