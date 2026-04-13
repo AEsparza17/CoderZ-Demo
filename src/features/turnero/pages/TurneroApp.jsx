@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import TurneroSidebar from "../components/TurneroSidebar";
 import Modal from "../components/Modal";
 import { Button } from "@/components/ui/button";
@@ -35,6 +35,7 @@ const TurneroApp = () => {
   });
 
   const fechaHoy = new Date().toISOString().split("T")[0];
+  const horaRef = useRef(null);
 
   useSocket({
     turno_creado: (turno) => {
@@ -83,7 +84,8 @@ const TurneroApp = () => {
   const handleSaveTurno = async (e) => {
     e.preventDefault();
     try {
-      const turnoCreado = await turnosApi.create(newTurno);
+      const turnoData = { ...newTurno, hora: horaRef.current?.value || "" };
+      const turnoCreado = await turnosApi.create(turnoData);
       const paciente = pacientes.find(
         (p) => p.id === parseInt(newTurno.paciente_id),
       );
@@ -411,10 +413,7 @@ const TurneroApp = () => {
               <input
                 required
                 type="time"
-                value={newTurno.hora}
-                onChange={(e) =>
-                  setNewTurno({ ...newTurno, hora: e.target.value })
-                }
+                ref={horaRef}
                 className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>

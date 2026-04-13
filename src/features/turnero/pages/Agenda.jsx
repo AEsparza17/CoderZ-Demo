@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import TurneroSidebar from '../components/TurneroSidebar';
 import Modal from '../components/Modal';
 import { Button } from '@/components/ui/button';
@@ -60,6 +60,9 @@ const Agenda = () => {
 
   const [modalEditarOpen, setModalEditarOpen] = useState(false);
   const [turnoEditando, setTurnoEditando] = useState(null);
+
+  const horaRefNuevo = useRef(null);
+  const horaRefEditar = useRef(null);
 
   const anio = mesActual.getFullYear();
   const mes = mesActual.getMonth();
@@ -174,7 +177,7 @@ const Agenda = () => {
   const handleSaveTurno = async (e) => {
     e.preventDefault();
     try {
-      const creado = await turnosApi.create(newTurno);
+      const creado = await turnosApi.create({ ...newTurno, hora: horaRefNuevo.current?.value || '' });
       const paciente = pacientes.find((p) => p.id === parseInt(newTurno.paciente_id));
       const turnoConNombre = { ...creado, paciente_nombre: paciente?.nombre || '' };
       setTurnosPorDia((prev) => ({
@@ -200,7 +203,8 @@ const Agenda = () => {
   const handleGuardarEdicion = async (e) => {
     e.preventDefault();
     try {
-      await turnosApi.updateEstado(turnoEditando.id, turnoEditando);
+      const datosEditados = { ...turnoEditando, hora: horaRefEditar.current?.value || turnoEditando.hora };
+      await turnosApi.updateEstado(turnoEditando.id, datosEditados);
       const paciente = pacientes.find((p) => p.id === parseInt(turnoEditando.paciente_id));
       const actualizado = {
         ...turnoEditando,
@@ -243,7 +247,7 @@ const Agenda = () => {
   };
 
   // ---- Formulario reutilizable ----
-  const FormTurno = ({ data, onChange, onSubmit, onCancel, titulo, submitLabel, extraFooter }) => (
+  const FormTurno = ({ data, onChange, onSubmit, onCancel, titulo, submitLabel, extraFooter, horaRef }) => (
     <form onSubmit={onSubmit} className="space-y-4">
       <div>
         <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Paciente</label>
@@ -289,8 +293,8 @@ const Agenda = () => {
           <input
             required
             type="time"
-            value={data.hora}
-            onChange={(e) => onChange({ ...data, hora: e.target.value })}
+            ref={horaRef}
+            defaultValue={data.hora}
             className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
@@ -702,6 +706,7 @@ const Agenda = () => {
           onSubmit={handleSaveTurno}
           onCancel={() => setModalNuevoOpen(false)}
           submitLabel="Guardar Turno"
+          horaRef={horaRefNuevo}
         />
       </Modal>
 
@@ -718,6 +723,7 @@ const Agenda = () => {
             onSubmit={handleGuardarEdicion}
             onCancel={() => { setModalEditarOpen(false); setTurnoEditando(null); }}
             submitLabel="Guardar Cambios"
+            horaRef={horaRefEditar}
             extraFooter={
               <button
                 type="button"
