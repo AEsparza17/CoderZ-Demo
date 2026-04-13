@@ -1,6 +1,6 @@
 # CoderZ — Portal de Clientes y Sistema de Turnos
 
-Aplicación web desarrollada por **CoderZ**, una empresa de desarrollo de software. Incluye una landing page pública, un portal de clientes con autenticación y un sistema de gestión de turnos.
+Aplicación web desarrollada por **CoderZ**, una empresa de desarrollo de software. Incluye una landing page pública, un portal de clientes con autenticación y un sistema de gestión de turnos para profesionales.
 
 Este repositorio corre en **modo demo** — no requiere backend. Todos los datos son simulados en memoria.
 
