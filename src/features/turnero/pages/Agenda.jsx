@@ -176,8 +176,14 @@ const Agenda = () => {
 
   const handleSaveTurno = async (e) => {
     e.preventDefault();
+    const hora = horaRefNuevo.current?.value || '';
+    const [, mm] = hora.split(':').map(Number);
+    if (!hora || mm > 59) {
+      alert('Ingresá un horario válido (HH:MM, minutos entre 00 y 59)');
+      return;
+    }
     try {
-      const creado = await turnosApi.create({ ...newTurno, hora: horaRefNuevo.current?.value || '' });
+      const creado = await turnosApi.create({ ...newTurno, hora });
       const paciente = pacientes.find((p) => p.id === parseInt(newTurno.paciente_id));
       const turnoConNombre = { ...creado, paciente_nombre: paciente?.nombre || '' };
       setTurnosPorDia((prev) => ({
@@ -202,8 +208,14 @@ const Agenda = () => {
 
   const handleGuardarEdicion = async (e) => {
     e.preventDefault();
+    const hora = horaRefEditar.current?.value || '';
+    const [, mm] = hora.split(':').map(Number);
+    if (!hora || mm > 59) {
+      alert('Ingresá un horario válido (HH:MM, minutos entre 00 y 59)');
+      return;
+    }
     try {
-      const datosEditados = { ...turnoEditando, hora: horaRefEditar.current?.value || turnoEditando.hora };
+      const datosEditados = { ...turnoEditando, hora };
       await turnosApi.updateEstado(turnoEditando.id, datosEditados);
       const paciente = pacientes.find((p) => p.id === parseInt(turnoEditando.paciente_id));
       const actualizado = {

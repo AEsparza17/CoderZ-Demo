@@ -83,9 +83,14 @@ const TurneroApp = () => {
 
   const handleSaveTurno = async (e) => {
     e.preventDefault();
+    const hora = horaRef.current?.value || "";
+    const [, mm] = hora.split(":").map(Number);
+    if (!hora || mm > 59) {
+      alert("Ingresá un horario válido (HH:MM, minutos entre 00 y 59)");
+      return;
+    }
     try {
-      const turnoData = { ...newTurno, hora: horaRef.current?.value || "" };
-      const turnoCreado = await turnosApi.create(turnoData);
+      const turnoCreado = await turnosApi.create({ ...newTurno, hora });
       const paciente = pacientes.find(
         (p) => p.id === parseInt(newTurno.paciente_id),
       );
