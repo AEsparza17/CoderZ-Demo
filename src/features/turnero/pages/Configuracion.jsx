@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import TurneroSidebar from '../components/TurneroSidebar';
 import { Button } from '@/components/ui/button';
 import { Save, Bell, User, Stethoscope, Plus, Trash2, Clock, LogOut } from 'lucide-react';
-import { serviciosApi, authApi } from '@/services/api';
+import { serviciosApi, authApi, perfilApi } from '@/services/api';
 import { useNavigate } from 'react-router-dom';
 
 const Configuracion = () => {
@@ -11,6 +11,9 @@ const Configuracion = () => {
   const [nuevoServicio, setNuevoServicio] = useState({ nombre: '', duracion: 30 });
   const [loadingServicios, setLoadingServicios] = useState(true);
   const [totalSesiones, setTotalSesiones] = useState(null);
+  const [perfil, setPerfil] = useState({ nombre_visible: '', especialidad: '', email_notif: true, whatsapp_notif: true });
+  const [guardando, setGuardando] = useState(false);
+  const [guardadoOk, setGuardadoOk] = useState(false);
 
   useEffect(() => {
     serviciosApi.getAll()
@@ -20,7 +23,28 @@ const Configuracion = () => {
     authApi.getSesiones()
       .then((data) => setTotalSesiones(data.total))
       .catch(() => {});
+    perfilApi.get()
+      .then((data) => setPerfil({ ...data, email_notif: !!data.email_notif, whatsapp_notif: !!data.whatsapp_notif }))
+      .catch(() => {});
   }, []);
+
+  const handleGuardarPerfil = async () => {
+    setGuardando(true);
+    setGuardadoOk(false);
+    try {
+      await perfilApi.update(perfil);
+      if (perfil.nombre_visible) {
+        localStorage.setItem('coderz_nombre', perfil.nombre_visible);
+        window.dispatchEvent(new CustomEvent('perfil-updated'));
+      }
+      setGuardadoOk(true);
+      setTimeout(() => setGuardadoOk(false), 3000);
+    } catch (err) {
+      alert('Error al guardar: ' + err.message);
+    } finally {
+      setGuardando(false);
+    }
+  };
 
   const handleAgregarServicio = async (e) => {
     e.preventDefault();
@@ -84,7 +108,8 @@ const Configuracion = () => {
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Nombre Visible</label>
                 <input
                   type="text"
-                  defaultValue="Dr. Agustín"
+                  value={perfil.nombre_visible || ''}
+                  onChange={(e) => setPerfil({ ...perfil, nombre_visible: e.target.value })}
                   className="w-full p-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -92,7 +117,8 @@ const Configuracion = () => {
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Especialidad</label>
                 <input
                   type="text"
-                  defaultValue="Odontología General"
+                  value={perfil.especialidad || ''}
+                  onChange={(e) => setPerfil({ ...perfil, especialidad: e.target.value })}
                   className="w-full p-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -106,7 +132,8 @@ const Configuracion = () => {
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Nombre Visible</label>
                 <input
                   type="text"
-                  defaultValue="Dr. Agustín"
+                  value={perfil.nombre_visible || ''}
+                  onChange={(e) => setPerfil({ ...perfil, nombre_visible: e.target.value })}
                   className="w-full p-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -114,7 +141,8 @@ const Configuracion = () => {
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Especialidad</label>
                 <input
                   type="text"
-                  defaultValue="Odontología General"
+                  value={perfil.especialidad || ''}
+                  onChange={(e) => setPerfil({ ...perfil, especialidad: e.target.value })}
                   className="w-full p-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -228,11 +256,21 @@ const Configuracion = () => {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <span className="text-slate-700 dark:text-slate-300 text-sm">Recordatorios por Email</span>
-                <input type="checkbox" defaultChecked className="accent-blue-600 w-5 h-5 cursor-pointer" />
+                <input
+                  type="checkbox"
+                  checked={perfil.email_notif}
+                  onChange={(e) => setPerfil({ ...perfil, email_notif: e.target.checked })}
+                  className="accent-blue-600 w-5 h-5 cursor-pointer"
+                />
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-slate-700 dark:text-slate-300 text-sm">Avisos de nuevos turnos (WhatsApp)</span>
-                <input type="checkbox" defaultChecked className="accent-blue-600 w-5 h-5 cursor-pointer" />
+                <input
+                  type="checkbox"
+                  checked={perfil.whatsapp_notif}
+                  onChange={(e) => setPerfil({ ...perfil, whatsapp_notif: e.target.checked })}
+                  className="accent-blue-600 w-5 h-5 cursor-pointer"
+                />
               </div>
             </div>
           </div>
@@ -262,9 +300,16 @@ const Configuracion = () => {
             </button>
           </div>
 
-          <div className="flex justify-end pt-4">
-            <Button className="bg-green-600 hover:bg-green-700 text-white px-8">
-              <Save className="mr-2 h-4 w-4" /> Guardar Cambios
+          <div className="flex justify-end items-center gap-4 pt-4">
+            {guardadoOk && (
+              <span className="text-sm text-green-600 dark:text-green-400 font-medium">Cambios guardados correctamente</span>
+            )}
+            <Button
+              onClick={handleGuardarPerfil}
+              disabled={guardando}
+              className="bg-green-600 hover:bg-green-700 text-white px-8"
+            >
+              <Save className="mr-2 h-4 w-4" /> {guardando ? 'Guardando...' : 'Guardar Cambios'}
             </Button>
           </div>
 

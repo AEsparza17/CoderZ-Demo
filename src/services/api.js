@@ -111,6 +111,25 @@ export const turnosApi = {
   },
 };
 
+// ─── Perfil ───────────────────────────────────────────────────────────────────
+
+const PERFIL_KEY = 'coderz_demo_perfil';
+const PERFIL_DEFAULT = { nombre_visible: 'Dr. Agustín', especialidad: 'Odontología General', email_notif: true, whatsapp_notif: true };
+
+export const perfilApi = {
+  get: async () => {
+    await delay();
+    const stored = localStorage.getItem(PERFIL_KEY);
+    return stored ? JSON.parse(stored) : { ...PERFIL_DEFAULT };
+  },
+
+  update: async (data) => {
+    await delay();
+    localStorage.setItem(PERFIL_KEY, JSON.stringify(data));
+    return { ok: true };
+  },
+};
+
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 
 export const authApi = {

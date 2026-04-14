@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { LayoutDashboard, Users, Calendar, Settings, LogOut, Sun, Moon, Menu, X } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTheme } from '@/hooks/useTheme';
@@ -9,8 +9,14 @@ const TurneroSidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { theme, toggleTheme } = useTheme();
-  const nombre = localStorage.getItem('coderz_nombre') || 'Usuario';
+  const [nombre, setNombre] = useState(localStorage.getItem('coderz_nombre') || 'Usuario');
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  useEffect(() => {
+    const handler = () => setNombre(localStorage.getItem('coderz_nombre') || 'Usuario');
+    window.addEventListener('perfil-updated', handler);
+    return () => window.removeEventListener('perfil-updated', handler);
+  }, []);
 
   const handleLogout = async () => {
     disconnectSocket();
